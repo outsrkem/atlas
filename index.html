@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    </head>
+    <body>
+        <style>
+            body {
+                display: block;
+                margin: 0px;
+            }
+        </style>
+
+        <script src="http://127.0.0.1:9090/atlas-runtime.js?v=20260726"></script>
+        <script>
+            // 模拟业务系统注入用户信息
+            window.addEventListener("atlas:ready", () => {
+                window.__ATLAS_USER__ = {
+                    username: "调试管理员",
+                    account: "admin001",
+                };
+                Atlas.bus.emit("atlas:refresh-user", {
+                    username: "调试管理员",
+                    account: "admin001",
+                });
+                // 监听事件，模拟交互
+                Atlas.bus.on("atlas:logout", () => {
+                    console.log("触发退出登录");
+                });
+                Atlas.bus.on("atlas:open-user-center", () => {
+                    console.log("打开个人信息");
+                });
+            });
+        </script>
+
+        <div>
+            <p>我是首页</p>
+        </div>
+    </body>
+</html>

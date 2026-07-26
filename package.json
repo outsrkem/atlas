@@ -1,0 +1,25 @@
+{
+    "name": "atlas",
+    "version": "1.0.0",
+    "description": "原生公共全局 UI 区块、跨多个业务系统、远程动态加载、持续扩展头部 / 侧边栏 / 弹窗等通用组件",
+    "main": "atlas-runtime.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "vite build && node build-atlas.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git@gitee.com:outsrkem/atlas.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "type": "commonjs",
+    "devDependencies": {
+        "csso": "^5.0.5",
+        "fs-extra": "^11.4.0",
+        "globby": "^16.2.2",
+        "terser": "^5.49.0",
+        "vite": "^8.1.5"
+    }
+}
