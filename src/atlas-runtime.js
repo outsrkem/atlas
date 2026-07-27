@@ -1,5 +1,13 @@
+// atlas-runtime.js
 (function () {
-    let CDN_BASE = window.location.origin + "/atlas";
+    const CDN_BASE = (function () {
+        const value = "{{CDN_BASE}}";
+        if (value === "__CDN_BASE_DEFAULT__") {
+            return window.location.origin + "/atlas";
+        }
+        return value;
+    })();
+
     window.Atlas = {
         bus: null,
     };

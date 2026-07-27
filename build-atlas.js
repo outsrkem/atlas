@@ -5,87 +5,127 @@ const path = require("path");
 
 const SRC = "./src";
 const DIST = "./dist";
+const CDN_BASE_FLAG = "__CDN_BASE_DEFAULT__";
 
-// ============ JS 压缩 ============
-async function buildJs(srcPath, distPath) {
+function parseArgs() {
+    const args = {};
+    process.argv.slice(2).forEach((arg) => {
+        if (arg.startsWith("--")) {
+            const match = arg.match(/^--([^=]+)(?:=(.*))?$/);
+            if (match) {
+                args[match[1]] = match[2] !== undefined ? match[2] : true;
+            }
+        }
+    });
+    return args;
+}
+
+const args = parseArgs();
+
+if (args.cdn_base === "") {
+    console.error("Error: --cdn_base cannot be an empty string");
+    console.error("Usage:");
+    console.error("  No param    : npm run build  (use default)");
+    console.error("  With value  : npm run build -- --cdn_base=https://cdn.example.com");
+    process.exit(1);
+}
+
+const CDN_BASE = args.cdn_base === undefined ? CDN_BASE_FLAG : args.cdn_base;
+
+console.log(`CDN_BASE: ${CDN_BASE === CDN_BASE_FLAG ? "(use default)" : CDN_BASE}`);
+
+// ============ Compress JS ============
+async function compressJS(content, filePath) {
     try {
-        const raw = await fs.readFile(srcPath, "utf8");
-        const result = await minify(raw, {
+        const result = await minify(content, {
             mangle: { reserved: ["Atlas", "ATLAS_CDN_ROOT"] },
             compress: { drop_console: false },
         });
-        await fs.outputFile(distPath, result.code);
-        console.log("✅ JS ", srcPath, "→", distPath);
-    } catch (error) {
-        console.error(`❌ JS 压缩失败 ${srcPath}:`, error.message);
-        throw error;
+        console.log(`  JS compressed: ${path.basename(filePath)}`);
+        return result.code;
+    } catch (err) {
+        console.error(`  JS compress failed: ${path.basename(filePath)}`, err.message);
+        return content;
     }
 }
 
-// ============ CSS 压缩 ============
-async function buildCss(srcPath, distPath) {
+// ============ Compress CSS ============
+async function compressCSS(content, filePath) {
     try {
-        const raw = await fs.readFile(srcPath, "utf8");
-        const code = csso.minify(raw).css;
-        await fs.outputFile(distPath, code);
-        console.log("✅ CSS ", srcPath, "→", distPath);
-    } catch (error) {
-        console.error(`❌ CSS 压缩失败 ${srcPath}:`, error.message);
-        throw error;
+        const result = csso.minify(content);
+        console.log(`  CSS compressed: ${path.basename(filePath)}`);
+        return result.css;
+    } catch (err) {
+        console.error(`  CSS compress failed: ${path.basename(filePath)}`, err.message);
+        return content;
     }
 }
 
-// ============ 文件复制 ============
-async function copyFile(srcPath, distPath) {
-    try {
-        await fs.copy(srcPath, distPath, { overwrite: true });
-        console.log("📄 COPY ", srcPath, "→", distPath);
-    } catch (error) {
-        console.error(`❌ 复制失败 ${srcPath}:`, error.message);
-        throw error;
+// ============ Process single file ============
+async function processFile(srcPath, distPath) {
+    let content = await fs.readFile(srcPath, "utf8");
+
+    // Replace CDN_BASE placeholder
+    if (content.includes("{{CDN_BASE}}")) {
+        content = content.replace(/\{\{CDN_BASE\}\}/g, CDN_BASE);
+    }
+
+    const ext = path.extname(srcPath);
+    let output = content;
+
+    if (ext === ".js") {
+        output = await compressJS(content, srcPath);
+    } else if (ext === ".css") {
+        output = await compressCSS(content, srcPath);
+    }
+
+    await fs.outputFile(distPath, output);
+}
+
+// ============ Walk directory ============
+async function walkDir(srcDir, distDir) {
+    await fs.ensureDir(distDir);
+    const entries = await fs.readdir(srcDir, { withFileTypes: true });
+
+    for (const entry of entries) {
+        const srcPath = path.join(srcDir, entry.name);
+        const distPath = path.join(distDir, entry.name);
+
+        // Skip excluded
+        const exclude = [".git", "node_modules", ".DS_Store", "dist", ".gitkeep"];
+        if (exclude.includes(entry.name)) continue;
+
+        if (entry.isDirectory()) {
+            await walkDir(srcPath, distPath);
+        } else {
+            const ext = path.extname(entry.name);
+            if (ext === ".js" || ext === ".css") {
+                await processFile(srcPath, distPath);
+            } else {
+                await fs.copy(srcPath, distPath, { overwrite: true });
+                console.log(`  Copied: ${entry.name}`);
+            }
+        }
     }
 }
 
-// ============ 清理 dist 目录 ============
-async function cleanDist() {
+// ============ Main ============
+async function build() {
+    console.log("Building...\n");
+
     if (await fs.pathExists(DIST)) {
         await fs.emptyDir(DIST);
-        console.log("🧹 已清理 dist 目录");
+        console.log("Clean dist\n");
     }
+
+    await walkDir(SRC, DIST);
+
+    console.log("\nBuild complete");
+    const display = CDN_BASE === CDN_BASE_FLAG ? "(default)" : `"${CDN_BASE}"`;
+    console.log(`CDN_BASE: ${display}`);
 }
 
-// ============ 主流程 ============
-async function run() {
-    console.log("🚀 开始构建...\n");
-
-    // 清理旧的构建产物
-    await cleanDist();
-
-    // 确保输出目录存在
-    await fs.ensureDir(DIST);
-    await fs.ensureDir(`${DIST}/utils`);
-    await fs.ensureDir(`${DIST}/components/top-header`);
-
-    // ============【清单全部手动写死，杜绝漏文件】============
-
-    // 根文件
-    await buildJs(`${SRC}/atlas-runtime.js`, `${DIST}/atlas-runtime.js`);
-
-    // utils脚本
-    await buildJs(`${SRC}/utils/auth-service.js`, `${DIST}/utils/auth-service.js`);
-    await buildJs(`${SRC}/utils/event-bus.js`, `${DIST}/utils/event-bus.js`);
-    await buildJs(`${SRC}/utils/resource-loader.js`, `${DIST}/utils/resource-loader.js`);
-
-    // top-header组件
-    await copyFile(`${SRC}/components/top-header/index.html`, `${DIST}/components/top-header/index.html`);
-    await buildJs(`${SRC}/components/top-header/main.js`, `${DIST}/components/top-header/main.js`);
-    await buildCss(`${SRC}/components/top-header/style.css`, `${DIST}/components/top-header/style.css`);
-
-    console.log("\n🎉 所有资源处理完毕！");
-}
-
-// ============ 执行 ============
-run().catch((e) => {
-    console.error("❌ 处理失败：", e);
+build().catch((e) => {
+    console.error("Build failed:", e);
     process.exit(1);
 });

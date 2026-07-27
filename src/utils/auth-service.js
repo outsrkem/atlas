@@ -1,3 +1,4 @@
+// auth-service.js
 (function () {
     function initAuthModule() {
         if (!window.Atlas) {
@@ -38,8 +39,7 @@
                         credentials: "include",
                         mode: "cors",
                         headers: {
-                            "Content-Type": "application/json",
-                            Accept: "application/json",
+                            "Content-Type": "application/json; charset=utf-8",
                             "Cache-Control": "no-cache",
                         },
                         cache: "no-store",
@@ -75,7 +75,7 @@
                         method: "POST",
                         credentials: "include",
                         headers: {
-                            "Content-Type": "application/json",
+                            "Content-Type": "application/json; charset=utf-8",
                         },
                     });
                 } catch (e) {

@@ -1,3 +1,4 @@
+// main.js
 (function () {
     // Wait for bus to be ready
     if (!window.Atlas || !window.Atlas.bus) {

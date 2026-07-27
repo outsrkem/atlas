@@ -10,9 +10,14 @@
                 display: block;
                 margin: 0px;
             }
+            .main {
+                margin-top: 50px;
+            }
         </style>
-
-        <script src="http://127.0.0.1:9090/atlas-runtime.js?v=20260726"></script>
+        <script>
+            window.ATLAS_CDN_ROOT = "http://127.0.0.1:9090";
+        </script>
+        <script src="http://127.0.0.1:9090/src/atlas-runtime.js"></script>
         <script>
             // 模拟业务系统注入用户信息
             window.addEventListener("atlas:ready", () => {
@@ -34,7 +39,7 @@
             });
         </script>
 
-        <div>
+        <div class="main">
             <p>我是首页</p>
         </div>
     </body>
