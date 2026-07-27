@@ -20,12 +20,16 @@
   align-items: center;
   gap: 8px;
 }
+
 .atlas-root.atlas-top-header .header-left-wrap {
   padding-left: 170px;
+  display: flex;
 }
+
 .atlas-root.atlas-top-header .console-icon {
   vertical-align: middle;
 }
+
 .atlas-root.atlas-top-header .console-name {
   font-size: 17px;
   font-weight: 500;
@@ -35,6 +39,7 @@
   align-items:  flex-end;
   position: relative;
 }
+
 .atlas-root.atlas-top-header .console-name::after {
   content: "";
   position: absolute;
@@ -46,9 +51,11 @@
   opacity: 0;
   transition: opacity 0.2s ease;
 }
+
 .atlas-root.atlas-top-header .console-name:hover {
   color: #409eff;
 }
+
 .atlas-root.atlas-top-header .console-name:hover::after {
   opacity: 1;
 }
@@ -73,9 +80,11 @@
   cursor: pointer;
   padding: 0 4px;
 }
+
 .atlas-root.atlas-top-header .link-btn:hover {
   color: #409eff;
 }
+
 .atlas-root.atlas-top-header .console-icon{
   align-items: center;
   display: inline-flex;
