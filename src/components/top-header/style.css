@@ -1,99 +1,98 @@
 .atlas-root.atlas-top-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 50px;
-  padding: 0 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  box-sizing: border-box;
-  z-index: 9999;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
 }
 
 .atlas-root.atlas-top-header .header-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .atlas-root.atlas-top-header .header-left-wrap {
-  padding-left: 170px;
-  display: flex;
+    padding-left: 170px;
+    display: flex;
 }
 
 .atlas-root.atlas-top-header .console-icon {
-  vertical-align: middle;
+    vertical-align: middle;
 }
 
 .atlas-root.atlas-top-header .console-name {
-  font-size: 17px;
-  font-weight: 500;
-  color: #333;
-  text-decoration: none;
-  display: inline-flex;
-  align-items:  flex-end;
-  position: relative;
+    font-size: 17px;
+    font-weight: 500;
+    color: #333;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    position: relative;
 }
 
 .atlas-root.atlas-top-header .console-name::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -3px;
-  height: 1px;
-  background-color: #409eff;
-  opacity: 0;
-  transition: opacity 0.2s ease;
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -3px;
+    height: 1px;
+    background-color: #409eff;
+    opacity: 0;
+    transition: opacity 0.2s ease;
 }
 
 .atlas-root.atlas-top-header .console-name:hover {
-  color: #409eff;
+    color: #409eff;
 }
 
 .atlas-root.atlas-top-header .console-name:hover::after {
-  opacity: 1;
+    opacity: 1;
 }
 
 .atlas-root.atlas-top-header .console-text {
-  margin-left: 10px;
+    margin-left: 5px;
 }
 
 .atlas-root.atlas-top-header .header-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: #666;
-  font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #666;
+    font-size: 14px;
 }
 
 .atlas-root.atlas-top-header .link-btn {
-  background: transparent;
-  border: none;
-  color: #606266;
-  font-size: 14px;
-  cursor: pointer;
-  padding: 0 4px;
+    background: transparent;
+    border: none;
+    color: #606266;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 0 4px;
 }
 
 .atlas-root.atlas-top-header .link-btn:hover {
-  color: #409eff;
+    color: #409eff;
 }
 
-.atlas-root.atlas-top-header .console-icon{
-  align-items: center;
-  display: inline-flex;
-  height: 1em;
-  justify-content: center;
-  line-height: 1em;
-  position: relative;
-  width: 1em;
-  fill:#409eff;
-  font-size: 20px;
-  color: #409eff;
+.atlas-root.atlas-top-header .console-icon {
+    align-items: center;
+    display: inline-flex;
+    height: 1em;
+    justify-content: center;
+    line-height: 1em;
+    position: relative;
+    width: 1em;
+    fill: #409eff;
+    font-size: 20px;
+    color: #409eff;
 }
