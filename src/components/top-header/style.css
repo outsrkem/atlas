@@ -96,3 +96,9 @@
     font-size: 20px;
     color: #409eff;
 }
+
+@media (max-width: 767px) {
+    .atlas-root.atlas-top-header {
+        display: none !important;
+    }
+}
