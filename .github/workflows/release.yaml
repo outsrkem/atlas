@@ -59,17 +59,19 @@ jobs:
                     -w /root/rpmbuild ${RPMBUILDBIMG} \
                     bash -c 'rpmbuild "$@"' _ "${ARGS[@]}"
 
-            - name: Upload
+            - name: Upload to HuaweiCloud OBS
               env:
                   AK: ${{ secrets.HW_ACCESS_KEY_ID }}
                   SK: ${{ secrets.HW_SECRET_ACCESS_KEY }}
                   OBS_ENDPOINT: ${{vars.OBS_ENDPOINT}}
                   OBS_BUCKET: ${{vars.OBS_BUCKET}}
+
               run: |
                   wget "https://obs-community.obs.cn-north-1.myhuaweicloud.com/obsutil/current/obsutil_linux_amd64.tar.gz"
                   tar -xzvf obsutil_linux_amd64.tar.gz
                   mv obsutil_linux_amd64_* obsutil
                   chmod 755 obsutil/obsutil
+
                   ./obsutil/obsutil config -i="$AK" -k="$SK" -e="$OBS_ENDPOINT"
 
                   find . -type f \( -name "atlas-*.gz" -o -name "atlas-*.rpm" \) | while read file; do

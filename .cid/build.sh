@@ -5,9 +5,11 @@ workspace=$(cd "$(dirname "$0")/.." && pwd)
 cd "$workspace"
 
 SRC_DIR=${workspace}
+
+app=atlas
 version="b0.0.0"
 release="b1"
-app=atlas
+
 NODE_IMG=node:22-alpine
 RPMBUILD_IMG=outsrkem/rpmbuild:4.14.3-rocky8
 
