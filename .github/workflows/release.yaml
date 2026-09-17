@@ -1,0 +1,78 @@
+name: Release Version
+
+on:
+    push:
+        tags:
+            - "v*.*.*"
+env:
+    NAME: atlas
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: "Checkout repository"
+              uses: actions/checkout@v6
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: "24.x"
+
+            - name: npm install
+              run: npm install
+
+            - name: Get tag version
+              id: branch-names
+              uses: tj-actions/branch-names@v9
+              with:
+                  strip_tag_prefix: v
+
+            - name: build
+              run: npm run build
+
+            - name: Pack Compression
+              run: |
+                  product="${{ env.NAME }}-${{ steps.branch-names.outputs.tag }}"
+                  tar zcvf "${product}.tar.gz" --transform "s/^dist/${product}/" dist
+
+            - name: build rpm package
+              env:
+                  RPMSPEC: atlas.spec
+                  RPMBUILDBIMG: outsrkem/rpmbuild:4.14.3-rocky8
+                  TARNAME: ${{ env.NAME }}-${{ steps.branch-names.outputs.tag }}.tar.gz
+                  TAG_VERSION: ${{ steps.branch-names.outputs.tag }}
+
+              run: |
+                  ARGS=(
+                    -bb
+                    --define "_version ${TAG_VERSION}"
+                    --define "_release 1"
+                    --define "dist .el6"
+                    SPECS/rpm.spec
+                  )
+
+                  docker run -i --rm \
+                    -v "$(pwd)/.cid/${RPMSPEC}:/root/rpmbuild/SPECS/rpm.spec" \
+                    -v "$(pwd)/${TARNAME}:/root/rpmbuild/SOURCES/${TARNAME}" \
+                    -v "$(pwd)/rpms:/root/rpmbuild/RPMS" \
+                    -w /root/rpmbuild ${RPMBUILDBIMG} \
+                    bash -c 'rpmbuild "$@"' _ "${ARGS[@]}"
+
+            - name: Upload
+              env:
+                  AK: ${{ secrets.HW_ACCESS_KEY_ID }}
+                  SK: ${{ secrets.HW_SECRET_ACCESS_KEY }}
+                  OBS_ENDPOINT: ${{vars.OBS_ENDPOINT}}
+                  OBS_BUCKET: ${{vars.OBS_BUCKET}}
+              run: |
+                  wget "https://obs-community.obs.cn-north-1.myhuaweicloud.com/obsutil/current/obsutil_linux_amd64.tar.gz"
+                  tar -xzvf obsutil_linux_amd64.tar.gz
+                  mv obsutil_linux_amd64_* obsutil
+                  chmod 755 obsutil/obsutil
+                  ./obsutil/obsutil config -i="$AK" -k="$SK" -e="$OBS_ENDPOINT"
+
+                  find . -type f \( -name "atlas-*.gz" -o -name "atlas-*.rpm" \) | while read file; do
+                    echo "uploading $file"
+                    ./obsutil/obsutil cp "$file" $OBS_BUCKET/${{ env.NAME }}/
+                  done
